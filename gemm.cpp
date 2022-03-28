@@ -17,7 +17,6 @@ float matB[] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10,11,12,13,14,15,16,
 float matC[M*K] = {0};
 float matC_golden[M*K] = {0};
 
-// template <type T>
 void goldenGEMM( const float* aptr, size_t astep, const float* bptr,
                size_t bstep, float* cptr, size_t cstep,
                int ma, int na, int nb )

@@ -1,19 +1,30 @@
+#ifndef __INTRIN_RVV_HPP_NEW__
+#define __INTRIN_RVV_HPP_NEW__
+
 #include <riscv_vector.h>
 
 using v_float32 = vfloat32m1_t;
 using v_int16 = vint16m1_t;
 
 template <class T>
-class VTraits
+struct VTraits;
+
+template <>
+struct VTraits<v_float32> 
 {
-public:
-    typedef float lane_type;
     static unsigned int nlanes; 
+    using lane_type = float;
 };
+
 template <>
+struct VTraits<v_int16> 
+{
+    static unsigned int nlanes; 
+    using lane_type = short;
+};
+
 unsigned int VTraits<v_float32>::nlanes = vsetvlmax_e32m1();
-template <>
-unsigned int VTraits<v_int16>::nlanes = vsetvlmax_e32m1();
+unsigned int VTraits<v_int16>::nlanes = vsetvlmax_e16m1();
 
 #define OPENCV_HAL_IMPL_RVV_LOADSTORE_OP(_Tpvec, _Tp, vl, width, suffix) \
 inline _Tpvec v_load(const _Tp* ptr) \
@@ -36,11 +47,15 @@ inline vint16m1_t v_setall_i16(const int v) {
     return vmv_v_x_i16m1(v, VTraits<v_int16>::nlanes);
 }
 
-#define OPENCV_HAL_IMPL_RVV_FMA(rvv_T, rvv_Intrin)\
-inline rvv_T v_fma(const rvv_T& a, const rvv_T& b, const rvv_T& c) {\
-    return rvv_Intrin(c, a, b, VTraits<rvv_T>::nlanes);\
+#define OPENCV_HAL_IMPL_RVV_FMA(_Tpvec, _Tp, rvv_Intrin) \
+inline _Tpvec v_fma(const _Tpvec& a, const _Tpvec& b, const _Tpvec& c) { \
+    return rvv_Intrin(c, a, b, VTraits<_Tpvec>::nlanes); \
+} \
+inline _Tpvec v_fma(const _Tp& a, const _Tpvec& b, const _Tpvec& c) { \
+    return rvv_Intrin(c, a, b, VTraits<_Tpvec>::nlanes); \
 }
 
-OPENCV_HAL_IMPL_RVV_FMA(vfloat32m1_t, vfmacc)
-OPENCV_HAL_IMPL_RVV_FMA(vint16m1_t, vmacc)
+OPENCV_HAL_IMPL_RVV_FMA(vfloat32m1_t, float, vfmacc)
+OPENCV_HAL_IMPL_RVV_FMA(vint16m1_t, short, vmacc)
 
+#endif //__INTRIN_RVV_HPP_NEW__

@@ -1,3 +1,6 @@
+#ifndef __INTRIN_RVV_HPP__
+#define __INTRIN_RVV_HPP__
+
 #include <riscv_vector.h>
 
 struct v_float32x4
@@ -62,16 +65,24 @@ using v_float32 = v_float32x4;
 using v_int16 = v_int16x8;
 
 template <class T>
-class VTraits
+struct VTraits;
+
+template <>
+struct VTraits<v_float32> 
 {
-public:
-    typedef float lane_type;
     static unsigned int nlanes; 
+    using lane_type = float;
 };
+
 template <>
-unsigned int VTraits<v_float32>::nlanes = vsetvlmax_e32m1();
-template <>
-unsigned int VTraits<v_int16>::nlanes = vsetvlmax_e32m1();
+struct VTraits<v_int16> 
+{
+    static unsigned int nlanes; 
+    using lane_type = short;
+};
+
+unsigned int VTraits<v_float32>::nlanes = 4;
+unsigned int VTraits<v_int16>::nlanes = 8;
 
 #define OPENCV_HAL_IMPL_RVV_LOADSTORE_OP(_Tpvec, _Tp, vl, width, suffix) \
 inline _Tpvec v_load(const _Tp* ptr) \
@@ -102,7 +113,17 @@ inline v_float32x4 v_fma(const v_float32x4& a, const v_float32x4& b, const v_flo
 
 inline v_int16x8 v_fma(const v_int16x8& a, const v_int16x8& b, const v_int16x8& c)
 {
-    return v_int16x8(vmacc_vv_i16m1(c, a, b, 4));
+    return v_int16x8(vmacc_vv_i16m1(c, a, b, 8));
+}
+
+inline v_float32x4 v_fma(const float a, const v_float32x4& b, const v_float32x4& c)
+{
+    return v_float32x4(vfmacc_vf_f32m1(c, a, b, 4));
+}
+
+inline v_int16x8 v_fma(const short a, const v_int16x8& b, const v_int16x8& c)
+{
+    return v_int16x8(vmacc_vx_i16m1(c, a, b, 8));
 }
 
 #define OPENCV_HAL_IMPL_RVV_BIN_OP(bin_op, _Tpvec, intrin, vl) \
@@ -124,3 +145,5 @@ OPENCV_HAL_IMPL_RVV_BIN_OP(+, v_float32x4, vfadd_vv_f32m1, 4)
 OPENCV_HAL_IMPL_RVV_BIN_OP(-, v_float32x4, vfsub_vv_f32m1, 4)
 OPENCV_HAL_IMPL_RVV_BIN_OP(*, v_float32x4, vfmul_vv_f32m1, 4)
 OPENCV_HAL_IMPL_RVV_BIN_OP(/, v_float32x4, vfdiv_vv_f32m1, 4)
+
+#endif //__INTRIN_RVV_HPP__
