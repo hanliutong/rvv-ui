@@ -45,6 +45,29 @@ inline void v_store(_Tp* ptr, const _Tpvec& a) \
 OPENCV_HAL_IMPL_RVV_LOADSTORE_OP(v_int16, short, VTraits<v_int16>::nlanes, 16, i16)
 OPENCV_HAL_IMPL_RVV_LOADSTORE_OP(v_float32, float, VTraits<v_float32>::nlanes, 32, f32)
 
+#include <initializer_list>
+#include <assert.h>
+
+inline v_float32 v_load(std::initializer_list<float> nScalars)
+{
+    // assert( nScalars.size() <= VTraits<v_float32>::nlanes);
+    return vle32_v_f32m1(nScalars.begin(), nScalars.size());
+}
+template<typename... Args>
+inline v_float32 v_load(float v, Args... vec) {
+    return v_load({v, vec...});
+}
+
+inline v_int16 v_load(std::initializer_list<short> nScalars)
+{
+    // assert( nScalars.size() <= VTraits<v_int16>::nlanes);
+    return vle16_v_i16m1(nScalars.begin(), nScalars.size());
+}
+template<typename... Args>
+inline v_int16 v_load(short v, Args... vec) {
+    return v_load({v, vec...});
+}
+
 
 inline vfloat32m1_t v_setall_f32(const float v) {
     return vfmv_v_f_f32m1(v, VTraits<v_float32>::nlanes);
