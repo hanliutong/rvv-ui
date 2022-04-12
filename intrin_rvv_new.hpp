@@ -1,6 +1,10 @@
 #ifndef __INTRIN_RVV_HPP_NEW__
 #define __INTRIN_RVV_HPP_NEW__
 
+#ifndef RVV_MAX_VLEN
+#define RVV_MAX_VLEN 1024
+#endif
+
 #include <riscv_vector.h>
 
 using v_float32 = vfloat32m1_t;
@@ -14,6 +18,7 @@ struct VTraits<v_float32>
 {
     static unsigned int nlanes; 
     using lane_type = float;
+    static const unsigned int max_nlanes = RVV_MAX_VLEN/sizeof(lane_type);
 };
 
 template <>
@@ -21,6 +26,7 @@ struct VTraits<v_int16>
 {
     static unsigned int nlanes; 
     using lane_type = short;
+    static const unsigned int max_nlanes = RVV_MAX_VLEN/sizeof(lane_type);
 };
 
 unsigned int VTraits<v_float32>::nlanes = vsetvlmax_e32m1();
