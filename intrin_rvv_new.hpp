@@ -68,6 +68,15 @@ inline v_int16 v_load(short v, Args... vec) {
     return v_load({v, vec...});
 }
 
+inline v_float32 v_add(v_float32 f1, v_float32 f2) {
+    return vfadd(f1, f2, VTraits<v_float32>::nlanes);
+}
+
+template<typename... Args>
+inline v_float32 v_add(v_float32 f1, v_float32 f2, Args... vf) {
+    return v_add(vfadd(f1, f2, VTraits<v_float32>::nlanes), vf...);
+}
+
 
 inline vfloat32m1_t v_setall_f32(const float v) {
     return vfmv_v_f_f32m1(v, VTraits<v_float32>::nlanes);
