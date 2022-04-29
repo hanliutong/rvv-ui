@@ -17,9 +17,10 @@ int main() {
     size_t i = 0;
     int loopCnt = 0;
 
-    #if CV_SIMD
+    #if CV_SIMD || CV_SIMD_SCALABLE
+        SCALABLE_HAL_BEGIN
         printf("SIMD is used\n");
-        size_t vl = v_float32::nlanes;
+        size_t vl = VTraits<v_float32>::nlanes;
         v_float32 vx, vy;
         v_float32 va = v_setall_f32(a);
         float* outputPtr = output;
@@ -27,10 +28,16 @@ int main() {
             loopCnt++;
             vx = v_load(matX+i);
             vy = v_load(matY+i);
-            vy = va * vx + vy;
+            vy = v_add(vy, v_mul(va, vx));
             // vy = v_fma(va, vx, vy); //is also ok.
             v_store(outputPtr, vy);
         }
+        SCALABLE_HAL_END
+
+        #if CV_SIMD_SCALABLE
+            printf("scalable hal is used\n");
+        #endif
+
     #endif
 
     for (; i < n; ++i) {
