@@ -81,7 +81,7 @@ inline v_float32 v_add(v_float32 f1, v_float32 f2, Args... vf) {
 inline vfloat32m1_t v_setall_f32(const float v) {
     return vfmv_v_f_f32m1(v, VTraits<v_float32>::nlanes);
 }
-inline vint16m1_t v_setall_i16(const int v) {
+inline vint16m1_t v_setall_s16(const int v) {
     return vmv_v_x_i16m1(v, VTraits<v_int16>::nlanes);
 }
 

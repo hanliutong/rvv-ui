@@ -97,7 +97,7 @@ inline void v_store(_Tp* ptr, const _Tpvec& a) \
 OPENCV_HAL_IMPL_RVV_LOADSTORE_OP(v_int16x8, short, 8, 16, i16)
 OPENCV_HAL_IMPL_RVV_LOADSTORE_OP(v_float32x4, float, 4, 32, f32)
 
-inline v_int16x8 v_setall_i16(float v) \
+inline v_int16x8 v_setall_s16(float v) \
 { \
     return v_int16x8(vmv_v_x_i16m1(v, 4)); \
 }
